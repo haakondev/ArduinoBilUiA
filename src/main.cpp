@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Motor.h>
+#include "Engine/Engine.h"
 
 volatile int rightWheelCount = 0;
 volatile int leftWheelCount = 0;
@@ -9,9 +9,9 @@ void trigLeftWheel() {leftWheelCount+=1;}
 
 int ReadingPin = A0;
 
-Motor MotorA("A", 9, 8, 7);
+Engine MotorA("A", 9, 8, 7);
 
-Motor MotorB("B", 5, 6, 4);
+Engine MotorB("B", 5, 6, 4);
 
 int speedH = 255;
 int speedV = 255;
