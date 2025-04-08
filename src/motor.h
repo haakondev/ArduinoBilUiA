@@ -79,6 +79,10 @@ class Motor {
 
 };
 
+void driveTwoMotors(Motor m, int speedM, Motor k, int speedK) {
+
+}
+
 
 
 #endif //MOTOR_H

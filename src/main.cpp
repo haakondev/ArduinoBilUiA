@@ -32,5 +32,6 @@ void setup() {
 void loop() {
 
     MotorA.drive(speedH, false, true);
+    MotorB.drive()
 
 }
