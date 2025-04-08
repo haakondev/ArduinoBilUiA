@@ -9,36 +9,28 @@ void trigLeftWheel() {leftWheelCount+=1;}
 
 int ReadingPin = A0;
 
-// Motor B
+Motor MotorA("A", 9, 8, 7);
 
-int enB = 5;
-int in4 = 4;
-int in3 = 6;
-
-// Motor A
-
-int in2 = 7;
-int in1 = 8;
-int enA = 9;
+Motor MotorB("B", 5, 4, 6);
 
 int speedH = 255;
 int speedV = 255;
 
 void setup() {
+
     Serial.begin(9600);
-    pinMode(enB, OUTPUT);
-    pinMode(enA, OUTPUT);
-    pinMode(in1, OUTPUT);
-    pinMode(in2, OUTPUT);
-    pinMode(in2, OUTPUT);
-    pinMode(in4, OUTPUT);
+
+    // Motor pins
+    pinMode(MotorA.getPinInOne(), OUTPUT);
+    pinMode(MotorA.getPinInTwo(), OUTPUT);
+    pinMode(MotorB.getPinInOne(), OUTPUT);
+    pinMode(MotorB.getPinInTwo(), OUTPUT);
+
+
 }
 
 void loop() {
-    analogWrite(enA, speedH);
-    analogWrite(enB, speedV);
-    pinMode(in1, HIGH);
-    pinMode(in2, LOW);
-    pinMode(in3, HIGH);
-    pinMode(in4, LOW);
+
+    MotorA.drive(speedH, false, true);
+
 }
