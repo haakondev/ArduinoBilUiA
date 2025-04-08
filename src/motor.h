@@ -1,9 +1,6 @@
 #include <Arduino.h>
 
 
-#ifndef MOTOR_H
-#define MOTOR_H
-
 class Motor {
     private:
         int enginePin;
@@ -14,11 +11,11 @@ class Motor {
     public:
 
         //Constructor
-        Motor(String motorName, int pinEn, int inOne, int inTwo) {
-            enginePin = pinEn;
-            in1 = inOne;
-            in2 = inTwo;
-            name = motorName;
+        Motor(String name, int enginePin, int in1, int in2) {
+            this->enginePin = enginePin;
+            this->in1 = in1;
+            this->in2 = in2;
+            this->name = name;
         }
 
         void drive(int speed, bool backward, bool run) {
@@ -58,7 +55,7 @@ class Motor {
         }
 
         // Setter & Getter pin EN(A/B)
-        void setPinEn(int pinEn) {
+        void setEnginePin(int pinEn) {
             Serial.println("You set in1 to pin EN(A/B) " + String(pinEn));
             enginePin = pinEn;
         }
@@ -91,9 +88,16 @@ class Motor {
             return in2;
         }
 
+        // Setter & Getter name
+        void setName(String motorName) {
+            Serial.println("You set name to " + motorName);
+            name = motorName;
+        }
+
+        String getName() {
+            Serial.println("name is " + name);
+            return name;
+        }
 
 
 };
-
-
-#endif //MOTOR_H
