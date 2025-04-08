@@ -11,7 +11,7 @@ int ReadingPin = A0;
 
 Motor MotorA("A", 9, 8, 7);
 
-Motor MotorB("B", 5, 4, 6);
+Motor MotorB("B", 5, 6, 4);
 
 int speedH = 255;
 int speedV = 255;
@@ -32,6 +32,5 @@ void setup() {
 void loop() {
 
     MotorA.drive(speedH, false, true);
-    MotorB.drive()
 
 }
