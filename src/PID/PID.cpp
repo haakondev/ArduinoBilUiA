@@ -18,9 +18,18 @@ float PID::calculate(float currentValue, float targetValue) {
 
     float derivative = (error - previousError) / deltaTime;
     previousError = error;
+    this->previousTime = now;
 
-    return kp * error + ki * integral + kd * derivative;
-    previousTime = now;
+    float PIDOutput = (kp * error) + (ki * integral) + (kd * derivative);
+
+    Serial.println("Error: " + String(error));
+    Serial.println("Integral: " + String(integral));
+    Serial.println("Derivative: " + String(derivative));
+    Serial.println("PID Output: " + String(PIDOutput));
+
+
+    return PIDOutput;
+
 }
 
 void PID::reset() {

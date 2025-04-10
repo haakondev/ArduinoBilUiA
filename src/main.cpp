@@ -102,7 +102,7 @@ void lineMode(float targetSpeed) {
 
     noInterrupts();
     unsigned long currentSpeedVenstre = 1000000.0 / pulseIntervalVenstre;
-    unsigned long currentSpeedHoyre = 1000000.0 / pulseIntervalVenstre;
+    unsigned long currentSpeedHoyre = 1000000.0 / pulseIntervalHoyre;
     interrupts();
 
         if (now > start) {
@@ -123,8 +123,8 @@ void lineMode(float targetSpeed) {
         float pidLeft = speedPID.calculate(currentSpeedVenstre, LINE_TARGET_SPEED);
         float pidRight = speedPID.calculate(currentSpeedHoyre, LINE_TARGET_SPEED);
 
-        int MOTOR_INPUT_HOYRE = constrain(LINE_TARGET_SPEED + pidRight * CONTROL_SENSITIVITY, 0, 255);
-        int MOTOR_INPUT_VENSTRE = constrain(LINE_TARGET_SPEED + pidLeft * CONTROL_SENSITIVITY, 0, 255);
+        int MOTOR_INPUT_HOYRE = constrain(LINE_TARGET_SPEED + pidRight, 0, 255);
+        int MOTOR_INPUT_VENSTRE = constrain(LINE_TARGET_SPEED + pidLeft, 0, 255);
 
         MOTOR_VENSTRE.drive(MOTOR_INPUT_VENSTRE, false, true);
         MOTOR_HOYRE.drive(MOTOR_INPUT_HOYRE, true, true);

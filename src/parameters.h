@@ -16,8 +16,8 @@
 
 // -------------------- PID PARAMETERS --------------------
 // PID for Speed Control
-#define SPEED_PID_KP 5.0
-#define SPEED_PID_KI 10.0
+#define SPEED_PID_KP 2.0
+#define SPEED_PID_KI 0.3
 #define SPEED_PID_KD 0.0
 #define SPEED_PID_MAX_INTEGRAL 50
 

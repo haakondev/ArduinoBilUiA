@@ -10,7 +10,7 @@ private:
     float integral;
     float previousError;
     float maxIntegral;
-    unsigned long previousTime;
+    unsigned long previousTime = 0;
 
 public:
     PID(String name, float kp, float ki, float kd, float maxIntegral = 255.0);
