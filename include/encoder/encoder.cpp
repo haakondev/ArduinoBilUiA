@@ -33,7 +33,8 @@ void encoder::setLastPulseCount(int lastPulseCount) {
 
 // Increment counter (called in interrupt)
 void encoder::countInterrupt(unsigned long now) {
-    this->count++; this->lastTime = now;
+    this->count++;
+    this->lastTime = now;
 }
 
 // Reset counter

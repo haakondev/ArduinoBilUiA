@@ -10,9 +10,9 @@
 #define IN4 4
 
 // LDR
-#define LDR_LEFT 3 // Venstre
-#define LDR_RIGHT 2 // Hoyre
+#define LDR_LEFT_PIN 3 // Venstre
+#define LDR_RIGHT_PIN 2 // Hoyre
 
 // ENCODER
-#define ENCODER_LEFT A4 // Venstre
-#define ENCODER_RIGHT A5 // Hoyre
+#define ENCODER_LEFT_PIN A4 // Venstre
+#define ENCODER_RIGHT_PIN A5 // Hoyre

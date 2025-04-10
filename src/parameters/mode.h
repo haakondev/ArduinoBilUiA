@@ -13,4 +13,5 @@
 // Arc Mode
 #define ARC_TURN_RADIUS 1.0          // meters (desired turning radius)
 #define ARC_WANTED_SPEED 0.7       // meters per second (desired speed for arc mode)
+#define ARC_WANTED_SPEED_BITS 150    // PWM value for arc speed
 #define LEFT_OUTER true

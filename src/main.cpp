@@ -4,14 +4,13 @@
 #include "engine/engine.h"
 #include "parameters/PID.h"
 #include "parameters/physicalConstants.h"
-#include "mode.h"
+#include "parameters/mode.h"
+#include "PID/PID.h"
+#include "LDR/LDR.h"
+#include "encoder/encoder.h"
+#include "modeController/modeController.h"
 
 
-// -------------------- PIN DEFINITIONS --------------------
-
-// Pulse counter pins
-
-// Photoresistors
 
 // -------------------- GLOBAL VARIABLES --------------------
 
@@ -22,84 +21,105 @@ int startError = 0;
 int startSum;
 
 // -------------------- CLASS INSTANTIATIONS --------------------
-PID anglePid("anglePID", ANGLE_PID_KP, ANGLE_PID_KI, ANGLE_PID_KD, ANGLE_PID_MAX_INTEGRAL);
-PID speedPid("speedPID", SPEED_PID_KP, SPEED_PID_KI, SPEED_PID_KD, SPEED_PID_MAX_INTEGRAL);
+calculations calculate;
+
+encoder leftEncoder("left", ENCODER_LEFT_PIN);
+encoder rightEncoder("left", ENCODER_RIGHT_PIN);
 
 engine leftMotor("left", ENA, IN1, IN2);
 engine rightMotor("right", ENB, IN3, IN4);
 
-calculations calculate;
+LDR leftLDR("leftLDR", LDR_LEFT_PIN);
+LDR rightLDR("rightLDR", LDR_RIGHT_PIN);
+
+PID anglePid(ANGLE_PID_KP, ANGLE_PID_KI, ANGLE_PID_KD);
+PID speedPid(SPEED_PID_KP, SPEED_PID_KI, SPEED_PID_KD);
+
+modeController modeController();
+
+// -------------------- COUNT FUNCTIONS --------------------
+
+unsigned long previousTime = 0;
+unsigned long lastTime = 0;
+
+volatile unsigned long lastPulseTimeVenstre = 0;
+volatile unsigned long pulseIntervalVenstre = 0;
+volatile unsigned long lastPulseTimeHoyre = 0;
+volatile unsigned long pulseIntervalHoyre = 0;
+
+float leftWheelSpeedArc = 0.0;
+float rightWheelSpeedArc = 0.0;
+
+void countLeftEncoder() {
+    leftEncoder.countInterrupt(millis());
+    unsigned long currentTime = micros();  // Current time in microseconds
+    pulseIntervalVenstre = currentTime - lastPulseTimeVenstre;
+    lastPulseTimeVenstre = currentTime;
+}
+
+void countRightEncoder() {
+    rightEncoder.countInterrupt(millis());
+    unsigned long currentTime = micros();  // Current time in microseconds
+    pulseIntervalHoyre = currentTime - lastPulseTimeHoyre;
+    lastPulseTimeHoyre = currentTime;
+}
+
+float targetArcDistance = 0.0;
 
 // -------------------- SETUP FUNCTION --------------------
 void setup() {
     Serial.begin(115200);
 
     // Initialize pulse sensor pins
-    pinMode(interruptPinLeft, INPUT_PULLUP);
-    pinMode(interruptPinRight, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(leftEncoder.getPin()), countLeftEncoder, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(rightEncoder.getPin()), countRightEncoder, CHANGE);
 
     // Initialize motor pins
-    pinMode(IN1, OUTPUT);
-    pinMode(IN2, OUTPUT);
-    pinMode(ENA, OUTPUT);
-    pinMode(IN3, OUTPUT);
-    pinMode(IN4, OUTPUT);
-    pinMode(ENB, OUTPUT);
+    pinMode(leftMotor.getPinInOne(), OUTPUT);
+    pinMode(leftMotor.getPinInTwo(), OUTPUT);
+    pinMode(rightMotor.getPinInOne(), OUTPUT);
+    pinMode(rightMotor.getPinInTwo(), OUTPUT);
+
+    pinMode(13, OUTPUT);
+    pinMode(12, OUTPUT);
+    pinMode(11, OUTPUT);
+
+    digitalWrite(13, HIGH);
+    digitalWrite(12, HIGH);
+    digitalWrite(11, HIGH);
 
     // Initialize light resistor pins
-    pinMode(lightRightPin, INPUT);
-    pinMode(lightLeftPin, INPUT);
+    pinMode(rightLDR.getPin(), INPUT);
+    pinMode(leftLDR.getPin(), INPUT);
 
     // Calculate initial light sensor error
-    startError = (analogRead(lightLeftPin) - analogRead(lightRightPin)) / 2;
-    startSum = (analogRead(lightLeftPin) + analogRead(lightRightPin));
-
-    // Attach interrupts
+    startError = (analogRead(leftLDR.getPin()) - analogRead(rightLDR.getPin())) / 2;
+    startSum = (analogRead(leftLDR.getPin()) + analogRead(rightLDR.getPin()));
 
     // Initialize mode-specific parameters
+    if (MODE == "LINE") {
+        leftMotor.drive(WANTED_SPEED_BITS_LINE, false, true);
+        rightMotor.drive(WANTED_SPEED_BITS_LINE, true, true);
+    } else if (MODE == "ARC") {
+        leftWheelSpeedArc = calculate.ArcWheelSpeed(true, ARC_TURN_RADIUS, WHEEL_DISTANCE, ARC_WANTED_SPEED);
+        rightWheelSpeedArc = calculate.ArcWheelSpeed(false, ARC_TURN_RADIUS, WHEEL_DISTANCE, ARC_WANTED_SPEED);
+        leftMotor.drive(ARC_WANTED_SPEED_BITS, true, true);
+        rightMotor.drive(ARC_WANTED_SPEED_BITS, true, true);
+    }
 }
 
 // -------------------- LOOP FUNCTION --------------------
 void loop() {
     if (MODE == "FOLLOW") {
-        followMode();
+        modeController().followMode(calculate, leftEncoder, rightEncoder, leftMotor, rightMotor, leftLDR, rightLDR, anglePid, speedPid, startError, startSum);
     } else if (MODE == "LINE") {
-        lineMode(LINE_TARGET_SPEED);
+        modeController().lineMode(calculate, leftEncoder, rightEncoder, leftMotor, rightMotor, leftLDR, rightLDR, anglePid, speedPid, startError, startSum);
     } else if (MODE == "ARC") {
-        arcMode(ARC_TURN_RADIUS * PI);
+        modeController().arcMode(calculate, leftEncoder, rightEncoder, leftMotor, rightMotor, leftLDR, rightLDR, anglePid, speedPid, startError, startSum, targetArcDistance, rightWheelSpeedArc, leftWheelSpeedArc);
     }
 }
 
-// -------------------- FOLLOW MODE --------------------
-void follow() {
-    // --- Read sensors ---
-    int ldrV = analogRead(ldrV_pin);                  // brightness = inverse of distance
-    int ldrH_left = analogRead(ldrH_left_pin);
-    int ldrH_right = analogRead(ldrH_right_pin);
 
-    // --- Calculate errors ---
-    float distanceError = targetBrightness - ldrV;    // Higher means you're too far
-    float angleError = (float)(ldrH_left - ldrH_right); // Positive = veer right, Negative = veer left
-
-    // --- Get PID outputs ---
-    float baseSpeed = pidDist.calculate(0, distanceError);   // Try to get distanceError to 0
-    float turnSpeed = pidAngle.calculate(0, angleError);     // Try to get angleError to 0
-
-    // --- Combine motor outputs ---
-    int motorL = constrain(baseSpeed - turnSpeed, 0, 255);
-    int motorR = constrain(baseSpeed + turnSpeed, 0, 255);
-
-    // --- Drive motors ---
-    analogWrite(motorL_pin, motorL);
-    analogWrite(motorR_pin, motorR);
-
-    // --- Debug ---
-    Serial.print("LDR V: "); Serial.print(ldrV);
-    Serial.print(" | DistErr: "); Serial.print(distanceError);
-    Serial.print(" | AngleErr: "); Serial.print(angleError);
-    Serial.print(" | L: "); Serial.print(motorL);
-    Serial.print(" R: "); Serial.println(motorR);
-}
 
 // -------------------- LINE MODE --------------------
 
