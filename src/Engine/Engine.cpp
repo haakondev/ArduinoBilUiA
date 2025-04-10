@@ -12,19 +12,16 @@ void Engine::drive(int speed, bool backward, bool run) {
         analogWrite(enginePin, 255);
         digitalWrite(in1, LOW);
         digitalWrite(in2, LOW);
-        Serial.println("Motor " + name + " has now stopped.");
         return;
     }
     if (backward) {
         digitalWrite(in1, LOW);
         digitalWrite(in2, HIGH);
         analogWrite(enginePin, speed);
-        Serial.println("Motor " + name + " is now going backwards.");
     } else {
         digitalWrite(in1, HIGH);
         digitalWrite(in2, LOW);
         analogWrite(enginePin, speed);
-        Serial.println("Motor " + name + " is now going forwards.");
     }
 }
 
@@ -35,7 +32,6 @@ void Engine::brake() {
     analogWrite(enginePin, 255);
     digitalWrite(in1, HIGH);
     digitalWrite(in2, HIGH);
-    Serial.println("Motor " + name + " is now braking.");
 }
 
 /**
@@ -45,7 +41,6 @@ void Engine::stop() {
     analogWrite(enginePin, 0);
     digitalWrite(in1, LOW);
     digitalWrite(in2, LOW);
-    Serial.println("Motor " + name + " has now stopped.");
 }
 
 /**
@@ -54,7 +49,6 @@ void Engine::stop() {
  * @param pinEn The pin number to set for speed control.
  */
 void Engine::setEnginePin(int pinEn) {
-    Serial.println("You set in1 to pin EN(A/B) " + String(pinEn));
     enginePin = pinEn;
 }
 
@@ -64,7 +58,6 @@ void Engine::setEnginePin(int pinEn) {
  * @return The pin number for speed control.
  */
 int Engine::getEnginePin() {
-    Serial.println("pin EN(A/B) is " + String(enginePin));
     return enginePin;
 }
 
@@ -74,7 +67,6 @@ int Engine::getEnginePin() {
  * @param pin The pin number to set for Input 1.
  */
 void Engine::setPinInOne(int pin) {
-    Serial.println("You set in1 to pin " + String(pin));
     in1 = pin;
 }
 
@@ -84,7 +76,6 @@ void Engine::setPinInOne(int pin) {
  * @return The pin number for Input 1.
  */
 int Engine::getPinInOne() {
-    Serial.println("in1 is " + String(in1));
     return in1;
 }
 
@@ -94,7 +85,6 @@ int Engine::getPinInOne() {
  * @param pin The pin number to set for Input 2.
  */
 void Engine::setPinInTwo(int pin) {
-    Serial.println("You set in2 to pin " + String(pin));
     in2 = pin;
 }
 
@@ -104,18 +94,16 @@ void Engine::setPinInTwo(int pin) {
  * @return The pin number for Input 2.
  */
 int Engine::getPinInTwo() {
-    Serial.println("in2 is " + String(in2));
     return in2;
 }
 
 /**
  * @brief Sets the name of the motor.
  *
- * @param motorName The name to assign to the motor.
+ * @param name The name to assign to the motor.
  */
-void Engine::setName(String motorName) {
-    Serial.println("You set name to " + motorName);
-    name = motorName;
+void Engine::setName(String name) {
+    this->name = name;
 }
 
 /**
@@ -124,6 +112,5 @@ void Engine::setName(String motorName) {
  * @return The name of the motor.
  */
 String Engine::getName() {
-    Serial.println("name is " + name);
     return name;
 }

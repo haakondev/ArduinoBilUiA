@@ -1,3 +1,6 @@
+#ifndef UIAARDUINO_ENGINE_H
+#define UIAARDUINO_ENGINE_H
+
 #include <Arduino.h>
 
 /**
@@ -82,9 +85,9 @@ public:
 
     /**
      * @brief Sets the name of the motor.
-     * @param motorName The name to set.
+     * @param name The name to set.
      */
-    void setName(String motorName);
+    void setName(String name);
 
     /**
      * @brief Gets the name of the motor.
@@ -92,3 +95,5 @@ public:
      */
     String getName();
 };
+
+#endif // ENGINE_H
